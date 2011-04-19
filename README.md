@@ -7,3 +7,4 @@
 * add keyboard shortcuts to cash desk
 * save current server configuration
 * improve GUI, usability
+* code refactoring
