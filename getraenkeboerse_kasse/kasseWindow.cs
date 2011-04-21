@@ -47,7 +47,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnDeleteEvent (object sender, DeleteEventArgs a)
 	{
-		Application.Quit ();
+		Gtk.Application.Quit ();
 		a.RetVal = true;
 	}
 	
@@ -150,12 +150,31 @@ public partial class MainWindow : Gtk.Window
 	}
 	
 	private void updateDrinksFromServer(string msg){
+		if (drinksInitialized){
+			// TODO: Add some kind of information that new prices have been sent
+			Gtk.MessageDialog msgDialog = new Gtk.MessageDialog(this, 
+				                                                Gtk.DialogFlags.DestroyWithParent,
+				                                                Gtk.MessageType.Info,
+				                                                Gtk.ButtonsType.Close,
+				                                                "New prices adapted.");
+			//msgDialog.Run(); 		// this seems broken
+			//msgDialog.Destroy();  
+		}
 		string[] drinks = msg.Split('|');
+		int i=0;
 		foreach (string d in drinks){
 			string[] tmp=d.Split(',');
 			if (tmp.Length>1){
-				addDrink(tmp[0], int.Parse(tmp[1]));
+				// is this the initial drink information ...
+				if (!drinksInitialized){
+					addDrink(tmp[0], int.Parse(tmp[1]));
+				}
+				// ... or have drinks already been received?
+				else {
+					((getraenkeboerse_widgetlibrary.drinkorderer)drinkOrderers[i]).Price = int.Parse(tmp[1]);
+				}
 			}
+			i++;
 		}
 		drinksInitialized = true;
 	}
@@ -228,6 +247,7 @@ public partial class MainWindow : Gtk.Window
 		tblDrinkOrderers.Show();
 		dro.BuyAction += triggerBuyAction;
 		dro.DrinkIndex = numDrinks-1;
+		drinkOrderers.Add(dro);
 	}
 	
 	private void triggerBuyAction(object obj, EventArgs args){

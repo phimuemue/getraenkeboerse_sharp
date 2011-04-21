@@ -7,6 +7,7 @@ using System.Collections;
 using Gtk;
 using common;
 using getraenkeboerse_sharp;
+using System.Timers;
 
 public partial class MainWindow : Gtk.Window
 {	
@@ -89,7 +90,7 @@ public partial class MainWindow : Gtk.Window
 		txtPort.IsEditable=false;
 		lblState.Text="Server started.";
 		startServer();
-		
+				
 		btnCancel.Sensitive=true;
 		btnOk.Sensitive=false;
 	}
@@ -115,10 +116,22 @@ public partial class MainWindow : Gtk.Window
 			serverSocket.Bind(ipEndPoint);
 			serverSocket.Listen(4);
 			serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
+			
+			System.Timers.Timer t = new System.Timers.Timer(double.Parse(txtInt.Text));
+			t.Elapsed += new ElapsedEventHandler(sendDrinksToClients);
+			t.Enabled = true;
+			t.Start();
 		}
 		catch (Exception ex){
 			log("Something went wrong during server initialization:");	
 			log(ex.Message);
+		}
+	}
+	
+	private void sendDrinksToClients(object sender, EventArgs args){
+		log ("Updating drinks!");
+		foreach (System.Net.Sockets.Socket c in clients){
+			sendDrinks(c);	
 		}
 	}
 	
@@ -218,7 +231,10 @@ public partial class MainWindow : Gtk.Window
 		clientsToRows.Add(client, newrow);
 		addressesToClients.Add(address, client);
 		tvConnections.QueueDraw();
-		
+		sendDrinks(client);
+	}
+	
+	private void sendDrinks(System.Net.Sockets.Socket client){
 		// send drinks to client
 		log("Constructing drink string.");
 		Message drinks = new Message(Command.DescribeDrinks, getDrinksForMessage());
