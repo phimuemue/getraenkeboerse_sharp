@@ -235,6 +235,12 @@ public partial class MainWindow : Gtk.Window
 		log ("Someone bought a " + dro.DrinkName + "(" + dro.DrinkIndex.ToString() + ")");
 		OrderStore.AddNode(new DrinkOrder(dro.DrinkIndex, dro.DrinkName, dro.Price));
 		log ("buying done!");
+		// calculate price
+		int p = 0; // price
+		foreach (DrinkOrder d in orderStore){
+			p += d.price;	
+		}
+		btnOrder.Label = string.Format("{0:0.00} Euro", p/100.0);
 	}
 	
 	private void OrderStuff(object obj, EventArgs args){
@@ -264,6 +270,7 @@ public partial class MainWindow : Gtk.Window
 		log (sb.ToString());
 		messageToServer(Command.Buy, sb.ToString());
 		orderStore.Clear();
+		btnOrder.Label = "0 Euro";
 	}
 	
 	
