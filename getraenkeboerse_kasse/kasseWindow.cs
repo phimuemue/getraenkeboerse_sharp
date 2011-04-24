@@ -156,7 +156,7 @@ public partial class MainWindow : Gtk.Window
 				                                                Gtk.DialogFlags.DestroyWithParent,
 				                                                Gtk.MessageType.Info,
 				                                                Gtk.ButtonsType.Close,
-				                                                "New prices adapted."); 
+				                                                "New prices adapted.");
 		}
 		string[] drinks = msg.Split('|');
 		int i=0;

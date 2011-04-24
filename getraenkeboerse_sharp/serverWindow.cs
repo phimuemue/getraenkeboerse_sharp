@@ -222,21 +222,23 @@ public partial class MainWindow : Gtk.Window
 			logoutClient(client);
 			break;
 		case Command.Buy:
-			log("Someone bought something: " + msg.parameter);
+			//log("Someone bought something: " + msg.parameter);
 			buyDrinks(msg.parameter);
 			break;
 		}
 	}
 	
 	private void buyDrinks(string msg){
+		log ("buyDrinks called with: " + msg);
 		string[] drinkIndices = msg.Split(',');
 		foreach (string d in drinkIndices){
 			buyDrink(d);
 		}
 	}
 	
-	private void buyDrink(string drink){
-		DrinkTreeNode n = (DrinkTreeNode)DrinkStore.GetNode(new TreePath(drink));
+	private void buyDrink(string drinkPath){
+		log ("Someone bought drink with path: " + drinkPath);
+		DrinkTreeNode n = (DrinkTreeNode)DrinkStore.GetNode(new TreePath(drinkPath));
 		n.Count = n.Count + 1;
 		// at the moment, we are using a very simple system for price calculation
 		// TODO: check if this system is practicable
@@ -247,8 +249,7 @@ public partial class MainWindow : Gtk.Window
 				d.Price = d.Price - decreaseAmount;
 			}
 		}
-		n.Price = n.Price + increaseAmount * numDrinks;
-		
+		n.Price = n.Price + increaseAmount;// * numDrinks;
 		tvDrinks.QueueDraw();
 	}
 			         
@@ -299,6 +300,7 @@ public partial class MainWindow : Gtk.Window
 		tvConnections.QueueDraw();
 	}
 	
+	// TODO: make this stuff dynamic/correct!
 	protected virtual void OnBtnMessageClicked (object sender, System.EventArgs e)
 	{
 		// message stuff
@@ -309,7 +311,6 @@ public partial class MainWindow : Gtk.Window
 		TreeModel tm;
 		tvConnections.Selection.GetSelected(out tm, out sel);
 		string address = (string)(tm.GetValue(sel, 0));
-		// TODO: make this dynamic/correct!
 		System.Net.Sockets.Socket client = (System.Net.Sockets.Socket)clients[0];
 		Message msg = new Message(Command.DescribeDrinks, "drink1/drink2/drink3");
 		byte[] bytes = msg.toByte();
@@ -318,7 +319,7 @@ public partial class MainWindow : Gtk.Window
 		                 bytes.Length, 
 		                 SocketFlags.None,
 		                 new AsyncCallback(OnSend),
-		                 null);
+		                 client);
 	}
 	
 	private void OnSend(IAsyncResult ar){
@@ -379,7 +380,6 @@ public partial class MainWindow : Gtk.Window
 	[TreeNode (ListOnly=true)]
 	public class DrinkTreeNode : Gtk.TreeNode {
 		int count = 0;
-		private uint price;
 		public DrinkTreeNode (string dn, uint c, uint minprice, uint maxprice)
 		{
 		    DrinkName = dn;
@@ -396,20 +396,6 @@ public partial class MainWindow : Gtk.Window
 		[Gtk.TreeNodeValue (Column=3)]
 		public uint MaxPrice;
 		[Gtk.TreeNodeValue (Column=4)]
-		public uint Price{
-			get { return price; }
-			set {
-				Console.WriteLine("Setting Price");
-				if (value<MinPrice) {
-					price = MinPrice; 
-				}
-				else if (value>MaxPrice) {
-					price = MaxPrice;
-				}
-				else {
-					price = value;
-				}
-			}
-		}
+		public uint Price;
 	}
 }
