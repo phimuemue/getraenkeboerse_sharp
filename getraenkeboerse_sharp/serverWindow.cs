@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Collections;
+using System.IO;
 using Gtk;
 using common;
 using getraenkeboerse_sharp;
@@ -22,15 +23,14 @@ public partial class MainWindow : Gtk.Window
 	private uint decreaseAmount = 1;
 	private uint increaseAmount = 1;
 	
+	private string drinkFileName = "drinks.txt";
+	
 	// TODO: Make this dynamic!
 	Gtk.NodeStore store;
 	Gtk.NodeStore DrinkStore {
 		get {
 			if (store == null) {
 		        store = new Gtk.NodeStore (typeof (DrinkTreeNode));
-		        store.AddNode (new DrinkTreeNode ("Cola", 150, 0, 700));
-		        store.AddNode (new DrinkTreeNode ("Fanta", 300, 50, 900));
-		        store.AddNode (new DrinkTreeNode ("Wasser", 200, 10, 1000));
 			}
 				return store;
 			}
@@ -77,10 +77,13 @@ public partial class MainWindow : Gtk.Window
 		
   		tvDrinks.ShowAll ();	
 		tvDrinks.NodeStore = DrinkStore;
+		
+		readDrinks();
 	}
 
 	protected void OnDeleteEvent (object sender, DeleteEventArgs a)
 	{
+		writeDrinks();
 		Application.Quit ();
 		a.RetVal = true;
 	}
@@ -93,6 +96,27 @@ public partial class MainWindow : Gtk.Window
 				
 		btnCancel.Sensitive=true;
 		btnOk.Sensitive=false;
+	}
+	
+	private void readDrinks(){
+		if (!File.Exists(drinkFileName))
+		    return;
+		TextReader tr = new StreamReader(drinkFileName);
+		string line;
+		while ((line = tr.ReadLine()) != null){
+			// format is drink|minprice|maxprice|curprice (seperated by |)
+			string[] info = line.Split('|');
+			addDrink(info[0], uint.Parse(info[1]), uint.Parse(info[2]), uint.Parse(info[3]));
+		}
+		tr.Close();
+	}
+	
+	private void writeDrinks(){
+		TextWriter tw = new StreamWriter(drinkFileName);
+		foreach (DrinkTreeNode d in DrinkStore){
+			tw.WriteLine(d.DrinkName + "|" + d.MinPrice.ToString() + "|" + d.MaxPrice.ToString() + "|" + d.Price.ToString());
+		}
+		tw.Close();
 	}
 	
 	protected virtual void OnBtnCancelClicked (object sender, System.EventArgs e)
