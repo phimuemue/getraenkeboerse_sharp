@@ -258,6 +258,7 @@ public partial class MainWindow
 		this.DefaultHeight = 405;
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
+		this.KeyPressEvent += new global::Gtk.KeyPressEventHandler (this.OnKeyPressEvent);
 		this.btnConnect.Clicked += new global::System.EventHandler (this.OnBtnConnectClicked);
 		this.btnDisconnect.Clicked += new global::System.EventHandler (this.OnBtnDisconnectClicked);
 		this.btnMsg.Clicked += new global::System.EventHandler (this.OnBtnMsgClicked);

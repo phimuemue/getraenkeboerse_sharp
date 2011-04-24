@@ -22,6 +22,24 @@ public partial class MainWindow : Gtk.Window
 	private bool drinksInitialized = false;
 	private ArrayList drinkOrderers = new ArrayList();
 	
+	private Gdk.Key[] rawOrderingKeys = {
+		Gdk.Key.F1,
+		Gdk.Key.F2,
+		Gdk.Key.F3,
+		Gdk.Key.F4,
+		Gdk.Key.F5,
+		Gdk.Key.F6,
+		Gdk.Key.F7,
+		Gdk.Key.F8,
+		Gdk.Key.F9,
+		Gdk.Key.F10,
+		Gdk.Key.F11,
+		Gdk.Key.F12
+	};
+	// this beast stores the keys and associated drinkOrderers to get drinkorderers from key presses
+	private Hashtable usedOrderingKeys = new Hashtable(24);
+	
+	
 	Gtk.NodeStore orderStore;
 	Gtk.NodeStore OrderStore {
 		get {
@@ -43,6 +61,8 @@ public partial class MainWindow : Gtk.Window
 		tvOrders.AppendColumn("Price", new Gtk.CellRendererText(), "text", 2);
 		tvOrders.ShowAll();
 		tvOrders.NodeStore = OrderStore;
+		
+		this.Default = btnOrder;
 	}
 
 	protected void OnDeleteEvent (object sender, DeleteEventArgs a)
@@ -246,6 +266,9 @@ public partial class MainWindow : Gtk.Window
 		dro.BuyAction += triggerBuyAction;
 		dro.DrinkIndex = numDrinks-1;
 		drinkOrderers.Add(dro);
+		if (numDrinks<12){
+			usedOrderingKeys.Add(rawOrderingKeys[numDrinks-1], dro);
+		}
 	}
 	
 	private void triggerBuyAction(object obj, EventArgs args){
@@ -291,6 +314,15 @@ public partial class MainWindow : Gtk.Window
 		btnOrder.Label = "0 Euro";
 	}
 	
+	protected virtual void OnKeyPressEvent (object o, Gtk.KeyPressEventArgs args)
+	{
+		Gdk.Key k = args.Event.Key;
+		if (usedOrderingKeys.Contains (k)){
+			triggerBuyAction(usedOrderingKeys[k], null);
+			btnOrder.GrabFocus();
+		}
+		log (k.ToString());
+	}
 	
 }
 
