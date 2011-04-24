@@ -55,6 +55,16 @@ namespace getraenkeboerse_widgetlibrary
 			}
 		}
 		
+		private string buyCaption;
+		public string BuyCaption {
+			get {
+				return buyCaption;	
+			}
+			set {
+				btnBuy.Label = value;
+				buyCaption = value;	
+			}
+		}
 		
 	}
 }

@@ -268,6 +268,7 @@ public partial class MainWindow : Gtk.Window
 		drinkOrderers.Add(dro);
 		if (numDrinks<12){
 			usedOrderingKeys.Add(rawOrderingKeys[numDrinks-1], dro);
+			dro.BuyCaption = rawOrderingKeys[numDrinks-1].ToString();
 		}
 	}
 	
