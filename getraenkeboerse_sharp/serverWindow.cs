@@ -105,7 +105,7 @@ public partial class MainWindow : Gtk.Window
 		while ((line = tr.ReadLine()) != null){
 			// format is drink|minprice|maxprice|curprice (seperated by |)
 			string[] info = line.Split('|');
-			addDrink(info[0], uint.Parse(info[1]), uint.Parse(info[2]), uint.Parse(info[3]));
+			addDrink(info[0], uint.Parse(info[3]), uint.Parse(info[1]), uint.Parse(info[2]));
 		}
 		tr.Close();
 	}
@@ -249,7 +249,7 @@ public partial class MainWindow : Gtk.Window
 				d.Price = d.Price - decreaseAmount;
 			}
 		}
-		n.Price = n.Price + increaseAmount;// * numDrinks;
+		n.Price = n.Price + increaseAmount * numDrinks;
 		tvDrinks.QueueDraw();
 	}
 			         
@@ -380,11 +380,13 @@ public partial class MainWindow : Gtk.Window
 	[TreeNode (ListOnly=true)]
 	public class DrinkTreeNode : Gtk.TreeNode {
 		int count = 0;
+		uint price;
 		public DrinkTreeNode (string dn, uint c, uint minprice, uint maxprice)
 		{
 		    DrinkName = dn;
 			MinPrice = minprice;
 			MaxPrice = maxprice;
+			this.price = c;
 		    this.Price = c;
 		}
 		[Gtk.TreeNodeValue (Column=0)]
@@ -396,6 +398,19 @@ public partial class MainWindow : Gtk.Window
 		[Gtk.TreeNodeValue (Column=3)]
 		public uint MaxPrice;
 		[Gtk.TreeNodeValue (Column=4)]
-		public uint Price;
+		public uint Price {
+			get { return price; }
+			set {
+				if (value < MinPrice) {
+					price = MinPrice;	
+					return;
+				}
+				if (value > MaxPrice){
+					price = MaxPrice;
+					return;
+				}
+				price = value;
+			}
+		}
 	}
 }
