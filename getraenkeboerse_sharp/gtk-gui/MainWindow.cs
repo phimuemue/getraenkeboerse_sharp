@@ -98,7 +98,7 @@ public partial class MainWindow
 		this.notebook1 = new global::Gtk.Notebook ();
 		this.notebook1.CanFocus = true;
 		this.notebook1.Name = "notebook1";
-		this.notebook1.CurrentPage = 0;
+		this.notebook1.CurrentPage = 1;
 		// Container child notebook1.Gtk.Notebook+NotebookChild
 		this.table2 = new global::Gtk.Table (((uint)(3)), ((uint)(2)), false);
 		this.table2.Name = "table2";
@@ -327,7 +327,6 @@ public partial class MainWindow
 		w24.Position = 0;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.hbuttonbox1 = new global::Gtk.HButtonBox ();
-		this.hbuttonbox1.Name = "hbuttonbox1";
 		this.hbuttonbox1.Spacing = 3;
 		this.hbuttonbox1.BorderWidth = ((uint)(4));
 		this.hbuttonbox1.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));

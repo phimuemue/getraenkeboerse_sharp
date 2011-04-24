@@ -25,7 +25,6 @@ public partial class MainWindow : Gtk.Window
 	
 	private string drinkFileName = "drinks.txt";
 	
-	// TODO: Make this dynamic!
 	Gtk.NodeStore store;
 	Gtk.NodeStore DrinkStore {
 		get {
@@ -123,7 +122,10 @@ public partial class MainWindow : Gtk.Window
 	{
 		txtPort.IsEditable=true;
 		lblState.Text="Server stopped.";
-		// TODO: Add stuff to close all connections to clients!
+				
+		foreach (System.Net.Sockets.Socket c in clients){
+			logoutClient(c);
+		}
 		
 		btnCancel.Sensitive=false;
 		btnOk.Sensitive=true;
@@ -155,7 +157,14 @@ public partial class MainWindow : Gtk.Window
 	private void sendDrinksToClients(object sender, EventArgs args){
 		log ("Updating drinks!");
 		foreach (System.Net.Sockets.Socket c in clients){
-			sendDrinks(c);	
+			log ("Sending drinks to client: " + clients.Count);
+			if (c is System.Net.Sockets.Socket){
+				log ("c is a socket");	
+			}
+			else {
+				log ("c is no socket");	
+			}
+			sendDrinks(c);
 		}
 	}
 	
@@ -260,7 +269,8 @@ public partial class MainWindow : Gtk.Window
 	
 	private void sendDrinks(System.Net.Sockets.Socket client){
 		// send drinks to client
-		log("Constructing drink string.");
+		log("Constructing drink string:");
+		log(getDrinksForMessage());
 		Message drinks = new Message(Command.DescribeDrinks, getDrinksForMessage());
 		byte[] bytes = drinks.toByte();
 		client.BeginSend(bytes,
@@ -268,7 +278,7 @@ public partial class MainWindow : Gtk.Window
 		                 bytes.Length,
 		                 SocketFlags.None,
 		                 new AsyncCallback(OnSend),
-		                 null);
+		                 client);
 	}
 	
 	private string getDrinksForMessage(){
@@ -314,6 +324,9 @@ public partial class MainWindow : Gtk.Window
 	private void OnSend(IAsyncResult ar){
 		try {
 			System.Net.Sockets.Socket client = (System.Net.Sockets.Socket)ar.AsyncState;
+			if (client==null){
+				log ("Client is null!");	
+			}
 			client.EndSend(ar);
 		}
 		catch (Exception ex){
